@@ -1,0 +1,29 @@
+# default config for the boston housing regression project
+
+random_seed: 42
+test_size: 0.2
+
+paths:
+  model_dir: models
+  model_file: models/model.pkl
+  scaler_file: models/scaler.pkl
+
+features:
+  log_transform:
+    - CRIM
+    - LSTAT
+    - DIS
+  poly_features:
+    - RM
+    - LSTAT
+  poly_degree: 2
+  drop:
+    - B   # questionable feature, dropped in feature engineering
+
+model:
+  # one of: linear, ridge, lasso, rf
+  type: ridge
+  ridge_alpha: 1.0
+  lasso_alpha: 0.01
+  rf_n_estimators: 200
+  rf_max_depth: 10
