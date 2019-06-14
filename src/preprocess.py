@@ -43,10 +43,23 @@ def drop_unwanted(df, cols=DROP_COLS):
     return df.drop(columns=[c for c in cols if c in df.columns])
 
 
+def add_room_per_dwelling_x_lstat(df):
+    """Interaction feature: rooms x lstat.
+
+    Two of the strongest individual predictors. Multiplying them gives a
+    rough proxy for "big house in a low-status area", which behaves
+    nonlinearly w.r.t. price.
+    """
+    df = df.copy()
+    df['RM_x_LSTAT'] = df['RM'] * df['LSTAT']
+    return df
+
+
 def build_features(df, poly_degree=2):
     """Apply the full feature engineering pipeline."""
     out = add_log_features(df)
     out = add_poly_features(out, degree=poly_degree)
+    out = add_room_per_dwelling_x_lstat(out)
     out = drop_unwanted(out)
     return out
 
