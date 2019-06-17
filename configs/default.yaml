@@ -19,6 +19,8 @@ features:
   poly_degree: 2
   drop:
     - B   # questionable feature, dropped in feature engineering
+  interactions:
+    - [RM, LSTAT]   # rooms x lower-status: strong nonlinear signal
 
 model:
   # one of: linear, ridge, lasso, rf
