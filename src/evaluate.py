@@ -14,3 +14,25 @@ def metrics(y_true, y_pred):
 
 def pretty(d):
     return 'MAE={mae:.3f} RMSE={rmse:.3f} R2={r2:.3f}'.format(**d)
+
+
+def compare(models, X_test, y_test):
+    """Run a dict of {name: fitted_model} on the test data, return a list of rows."""
+    rows = []
+    for name, m in models.items():
+        preds = m.predict(X_test)
+        d = metrics(y_test, preds)
+        d['model'] = name
+        rows.append(d)
+    return rows
+
+
+def print_table(rows):
+    print('model'.ljust(14), 'MAE'.rjust(8), 'RMSE'.rjust(8), 'R2'.rjust(8))
+    for r in rows:
+        print(
+            r['model'].ljust(14),
+            ('%.3f' % r['mae']).rjust(8),
+            ('%.3f' % r['rmse']).rjust(8),
+            ('%.3f' % r['r2']).rjust(8),
+        )
