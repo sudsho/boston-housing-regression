@@ -27,6 +27,8 @@ def predict_one(record, model_dir='models'):
     """record: dict mapping the 13 raw feature names -> float values."""
     model, scaler, columns = _load(model_dir)
 
+    # cast everything to float, otherwise weird things happen with object dtype
+    record = {k: float(v) for k, v in record.items()}
     df = pd.DataFrame([record])
     df = build_features(df)
 
