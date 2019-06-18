@@ -26,7 +26,10 @@ DROP_COLS = ['B']
 def add_log_features(df, cols=LOG_COLS):
     df = df.copy()
     for c in cols:
-        df['log_' + c] = np.log1p(df[c])
+        if c not in df.columns:
+            continue
+        # log1p instead of log to safely handle zeros
+        df['log_' + c] = np.log1p(df[c].astype(float))
     return df
 
 
