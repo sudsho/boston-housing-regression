@@ -3,14 +3,13 @@ import os
 import logging
 
 import joblib
-import numpy as np
 import yaml
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error, mean_squared_error
 
 from src.data import load_data
 from src.preprocess import build_features, fit_scaler, transform
 from src.model import build_model
+from src.evaluate import metrics, pretty
 
 
 logging.basicConfig(
@@ -45,9 +44,8 @@ def train(cfg):
     model.fit(X_tr_s, y_tr)
 
     preds = model.predict(X_te_s)
-    mae = mean_absolute_error(y_te, preds)
-    rmse = np.sqrt(mean_squared_error(y_te, preds))
-    log.info('test MAE = %.3f, RMSE = %.3f', mae, rmse)
+    m = metrics(y_te, preds)
+    log.info('test %s', pretty(m))
 
     out_dir = cfg['paths']['model_dir']
     if not os.path.isdir(out_dir):
@@ -58,7 +56,7 @@ def train(cfg):
     joblib.dump(list(X_fe.columns), os.path.join(out_dir, 'feature_columns.pkl'))
     log.info('saved model + scaler to %s', out_dir)
 
-    return mae, rmse
+    return m
 
 
 if __name__ == '__main__':
