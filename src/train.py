@@ -59,6 +59,15 @@ def train(cfg):
     return m
 
 
-if __name__ == '__main__':
-    cfg = load_config()
+def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', default='configs/default.yaml',
+                        help='path to yaml config')
+    args = parser.parse_args()
+    cfg = load_config(args.config)
     train(cfg)
+
+
+if __name__ == '__main__':
+    main()
