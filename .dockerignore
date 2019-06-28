@@ -1,0 +1,11 @@
+.git
+.gitignore
+.venv
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+notebooks/.ipynb_checkpoints/
+tests/
+.travis.yml
+*.md
