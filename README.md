@@ -85,9 +85,20 @@ LinearRegression and Lasso.
 
 ```
 pip install -r requirements.txt
+
+# train and dump artifacts to ./models
 python -m src.train --config configs/default.yaml
+
+# 5-fold CV on the random forest
+python -m src.cv
+
+# benchmark all 4 models on a fixed split
 python -m src.benchmark
+
+# run the unit tests
 pytest -q
+
+# start the api
 python app.py
 ```
 
@@ -125,6 +136,20 @@ For Docker:
 docker build -t boston-housing .
 docker run -p 5000:5000 boston-housing
 ```
+
+## Tests
+
+```
+pytest -q
+```
+
+Tests live under `tests/`:
+
+- `test_preprocess.py` covers log/poly/interaction/drop helpers and the
+  full `build_features` pipeline.
+- `test_evaluate.py` covers MAE/RMSE/R2 helpers.
+- `test_predict.py` trains a tiny ridge model in a tmp dir and exercises
+  both `predict_one` and the Flask `/predict` and `/health` routes.
 
 ## Data caveats
 
