@@ -1,10 +1,52 @@
 # boston-housing-regression
 
 Predict the median value of owner occupied homes (`MEDV`, in $1000s) for towns
-in the Boston metro area, given 13 socio-economic and physical features. Uses
-the classic Boston housing dataset bundled with scikit-learn.
+in the Boston metro area, given 13 socio-economic and physical features.
 
 A small Flask API serves predictions over HTTP.
+
+## Quick start (runs offline)
+
+No network needed. The one dependency note is the dataset: the classic Boston
+housing dataset was removed from scikit-learn (>= 1.2), so `src/data.py` loads
+the first source that works and falls back to a deterministic, offline
+synthetic dataset with the same 13 Boston feature columns. That keeps the whole
+pipeline (feature engineering, training, the Flask API) runnable end to end.
+
+```
+python scripts/smoke.py     # or: make smoke
+```
+
+Real output from a run on this machine (synthetic fallback, the offline default):
+
+```
+== boston-housing-regression offline smoke ==
+[1] loaded data: X=(506, 13) y=(506,)  source=synthetic Boston-shaped fallback (make_synthetic, offline)
+[2] training regressors (RMSE / R2 on held-out 20%):
+      linear   RMSE=2.081  R2=0.761
+      ridge    RMSE=2.273  R2=0.715
+      rf       RMSE=1.962  R2=0.788
+[3] dumped model + scaler to models/
+[4] predict_one on sample -> MEDV=9.58 ($1000s)
+[5] flask /health -> ok ; POST /predict -> {"medv": 9.57506670140483}
+SMOKE OK
+```
+
+The smoke loads data, trains three regressors and prints RMSE/R2, dumps model
+plus scaler artifacts, then exercises the serving path (the `predict_one`
+helper and the Flask `/health` and `/predict` routes through the test client).
+
+Unit tests:
+
+```
+python -m pytest -q     # 11 passed
+```
+
+To use the real Boston data instead of the synthetic fallback, drop a CSV with
+the 13 feature columns plus `MEDV` at `data/boston.csv`; `load_data` picks it up
+automatically. The metrics in the tables below are from the original Boston
+data; the synthetic fallback produces different but comparable numbers (shown
+above).
 
 ## Problem
 
@@ -57,11 +99,13 @@ LinearRegression and Lasso.
 ```
 .
 ├── app.py                  # flask api
+├── scripts/smoke.py        # offline end-to-end smoke
+├── Makefile                # make smoke / test / train / benchmark
 ├── configs/
 │   ├── default.yaml        # ridge by default
 │   └── rf.yaml             # random forest config
 ├── src/
-│   ├── data.py             # load Boston dataset
+│   ├── data.py             # load data (bundled / legacy / synthetic fallback)
 │   ├── preprocess.py       # log + poly + interaction features
 │   ├── model.py            # sklearn model factory
 │   ├── train.py            # fit and dump
@@ -85,6 +129,9 @@ LinearRegression and Lasso.
 
 ```
 pip install -r requirements.txt
+
+# offline end-to-end smoke (train + serve path)
+python scripts/smoke.py
 
 # train and dump artifacts to ./models
 python -m src.train --config configs/default.yaml
